@@ -1,9 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:todo_list_app/res/custom_colors.dart';
+import 'package:intl/intl.dart';
 import 'package:todo_list_app/screens/todo_creation_edit.dart';
 import 'package:todo_list_app/utils/Constants.dart';
+import 'package:todo_list_app/utils/commonFunctions.dart';
 import 'package:todo_list_app/widgets/drawer.dart';
 
 class ToDoListHomePage extends StatefulWidget {
@@ -99,6 +100,14 @@ class _ToDoListHomePageState extends State<ToDoListHomePage> {
           Constants.CATEGORY: category,
           Constants.TIME: time,
         });
+        if (category == Constants.BUSINESS) {
+          businessCount++;
+          personalCount--;
+        } else {
+          personalCount++;
+          businessCount--;
+        }
+        setState(() {});
       }
     }
   }
@@ -108,8 +117,13 @@ class _ToDoListHomePageState extends State<ToDoListHomePage> {
     await _toDos.doc(productId).delete();
 
     // Show a snackbar
-    ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('You have successfully deleted')));
+    CommonFunction.showSnackBarWidget(
+        'Todo Item Deleted Successfully.', context);
+    /*   ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Todo Item Deleted Successfully.'),
+      ),
+    );*/
 
     //removing the count in home screen
     if (Category == Constants.BUSINESS) {
@@ -117,89 +131,113 @@ class _ToDoListHomePageState extends State<ToDoListHomePage> {
     } else {
       personalCount--;
     }
-    setState(() {
-      businessCount = businessCount;
-      personalCount = personalCount;
-    });
+    setState(() {});
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       // Using StreamBuilder to display all products from Firestore in real-time
+      resizeToAvoidBottomInset: false,
       backgroundColor: Colors.white,
       key: scaffoldKey,
       drawer: NavigationDrawer(user: widget.user),
       body: Container(
-        // padding: EdgeInsets.all(10.0),
         child: Column(
           children: [
             Container(
               height: MediaQuery.of(context).size.height * 0.35,
-              //margin: EdgeInsets.fromLTRB(15, 0, 0, bottom),
+              padding: EdgeInsets.fromLTRB(15, 0, 10, 0),
               child: Row(
                 children: [
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      IconButton(
-                          icon: Icon(
-                            Icons.menu,
-                            size: 30,
+                  Container(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        SizedBox(
+                          height: 25,
+                        ),
+                        IconButton(
+                            icon: Icon(
+                              Icons.menu,
+                              size: 30,
+                              color: Colors.white,
+                            ),
+                            alignment: Alignment.topLeft,
+                            onPressed: () {
+                              scaffoldKey.currentState!.openDrawer();
+                            }),
+                        SizedBox(
+                          height: 10,
+                        ),
+                        Text(
+                          ' Your',
+                          style: TextStyle(
+                            fontFamily: "Barlow",
+                            fontSize: 36,
                             color: Colors.white,
-                          ),
-                          // alignment: Alignment.topRight,
-                          onPressed: () {
-                            scaffoldKey.currentState!.openDrawer();
-                          }),
-                      Align(
-                        alignment: Alignment.centerLeft,
-                        child: Text(
-                          '  Your',
-                          style: TextStyle(
-                            fontSize: 34,
-                            color: Colors.white60,
-                            fontWeight: FontWeight.normal,
+                            fontWeight: FontWeight.w300,
                           ),
                         ),
-                      ),
-                      Align(
-                        alignment: Alignment.centerLeft,
-                        child: Text(
-                          '  Things',
+                        Text(
+                          ' Things',
                           style: TextStyle(
-                            fontSize: 34,
-                            color: Colors.white60,
-                            fontWeight: FontWeight.normal,
+                            fontFamily: "Barlow",
+                            fontSize: 36,
+                            color: Colors.white,
+                            fontWeight: FontWeight.w300,
                           ),
                         ),
-                      ),
-                    ],
+                        SizedBox(
+                          height: 35,
+                        ),
+                        Text(
+                          "  " +
+                              DateFormat('MMM dd, yyyy')
+                                  .format(DateTime.now())
+                                  .toString(),
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontFamily: "Barlow",
+                            color: Colors.white60,
+                            fontWeight: FontWeight.w300,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                   Spacer(),
                   Column(
                     mainAxisAlignment: MainAxisAlignment.center,
-                    // crossAxisAlignment: CrossAxisAlignment.end,
+                    crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
                       Row(
                         children: [
                           Column(
                             children: [
-                              Text(
-                                personalCount.toString(),
-                                style: TextStyle(
-                                  fontSize: 22,
-                                  color: Colors.white60,
-                                  fontWeight: FontWeight.normal,
-                                ),
+                              Row(
+                                children: [
+                                  Container(
+                                    width: 58,
+                                  ),
+                                  Text(
+                                    personalCount.toString(),
+                                    style: TextStyle(
+                                      fontSize: 26,
+                                      color: Colors.white,
+                                      fontFamily: "Barlow",
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                ],
                               ),
                               Text(
                                 'Personal',
                                 style: TextStyle(
-                                  fontSize: 22,
+                                  fontFamily: "Barlow",
+                                  fontSize: 20,
                                   color: Colors.white60,
-                                  fontWeight: FontWeight.normal,
+                                  fontWeight: FontWeight.w400,
                                 ),
                               ),
                             ],
@@ -209,20 +247,29 @@ class _ToDoListHomePageState extends State<ToDoListHomePage> {
                           ),
                           Column(
                             children: [
-                              Text(
-                                businessCount.toString(),
-                                style: TextStyle(
-                                  fontSize: 22,
-                                  color: Colors.white60,
-                                  fontWeight: FontWeight.normal,
-                                ),
+                              Row(
+                                children: [
+                                  Container(
+                                    width: 58,
+                                  ),
+                                  Text(
+                                    businessCount.toString(),
+                                    style: TextStyle(
+                                      fontSize: 26,
+                                      color: Colors.white,
+                                      fontFamily: "Barlow",
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                ],
                               ),
                               Text(
                                 'Business',
                                 style: TextStyle(
-                                  fontSize: 22,
+                                  fontFamily: "Barlow",
+                                  fontSize: 20,
                                   color: Colors.white60,
-                                  fontWeight: FontWeight.normal,
+                                  fontWeight: FontWeight.w400,
                                 ),
                               ),
                             ],
@@ -234,7 +281,6 @@ class _ToDoListHomePageState extends State<ToDoListHomePage> {
                 ],
               ),
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(5),
                 color: Colors.blue,
                 image: DecorationImage(
                   fit: BoxFit.fill,
@@ -253,19 +299,20 @@ class _ToDoListHomePageState extends State<ToDoListHomePage> {
               ),
             ),
             Container(
-              margin: EdgeInsets.fromLTRB(25, 10, 10, 5),
+              margin: EdgeInsets.fromLTRB(20, 10, 10, 5),
               alignment: Alignment.centerLeft,
               child: Text(
                 "INBOX",
                 style: TextStyle(
-                  fontSize: 20,
+                  fontFamily: "Barlow",
+                  fontSize: 18,
                   color: Colors.grey,
-                  fontWeight: FontWeight.bold,
+                  fontWeight: FontWeight.w400,
                 ),
               ),
             ),
             Container(
-              margin: EdgeInsets.fromLTRB(10, 0, 10, 0),
+              margin: EdgeInsets.fromLTRB(5, 0, 5, 0),
               height: MediaQuery.of(context).size.height * 0.58,
               child: StreamBuilder(
                 stream: _toDos.snapshots(),
@@ -279,122 +326,154 @@ class _ToDoListHomePageState extends State<ToDoListHomePage> {
                               final DocumentSnapshot documentSnapshot =
                                   streamSnapshot.data!.docs[index];
                               return Card(
-                                margin: const EdgeInsets.fromLTRB(10, 0, 10, 0),
+                                //elevation: 5,
+                                margin: const EdgeInsets.fromLTRB(5, 2, 5, 0),
                                 child: Container(
+                                  padding: EdgeInsets.fromLTRB(8, 0, 8, 0),
                                   color: Colors.white,
-                                  height: 110,
+                                  height: 95,
                                   child: Row(
-                                    //crossAxisAlignment: CrossAxisAlignment.center,
                                     mainAxisAlignment: MainAxisAlignment.start,
                                     children: [
-                                      ClipOval(
-                                        child: Material(
-                                          color: Colors.grey,
-                                          child: Padding(
-                                            padding: const EdgeInsets.all(16.0),
-                                            child: Icon(
-                                              Icons.wysiwyg_rounded,
-                                              size: 30,
-                                              color: CustomColors.firebaseGrey,
-                                            ),
+                                      Container(
+                                        width: 60,
+                                        height: 60,
+                                        decoration: BoxDecoration(
+                                          border: Border.all(
+                                            width: 1,
+                                            color: Colors.grey.shade300,
                                           ),
+                                          shape: BoxShape.circle,
+                                        ),
+                                        child: Icon(
+                                          Icons.wysiwyg_rounded,
+                                          size: 30,
+                                          color: Colors.blueAccent,
                                         ),
                                       ),
                                       SizedBox(
                                         width: 10,
                                       ),
-                                      Column(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            documentSnapshot[Constants.TITLE],
-                                            style: TextStyle(
-                                              fontSize: 26,
-                                              color: Colors.black,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                          SizedBox(
-                                            height: 10,
-                                          ),
-                                          new Container(
-                                            width: 140,
-                                            child: Row(
-                                              children: <Widget>[
+                                      Expanded(
+                                        child: Column(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment
+                                                      .spaceBetween,
+                                              children: [
                                                 Flexible(
-                                                  child: new Text(
-                                                    documentSnapshot[
-                                                        Constants.DESCRIPTION],
-                                                    style: TextStyle(
-                                                      fontSize: 18,
-                                                      color: Colors.black,
+                                                  child: Container(
+                                                    width: 150,
+                                                    child: Text(
+                                                      documentSnapshot[
+                                                          Constants.TITLE],
+                                                      maxLines: 1,
+                                                      overflow:
+                                                          TextOverflow.ellipsis,
+                                                      style: TextStyle(
+                                                        fontFamily: "Barlow",
+                                                        fontSize: 26,
+                                                        color: Colors.black,
+                                                        fontWeight:
+                                                            FontWeight.w400,
+                                                      ),
                                                     ),
                                                   ),
-                                                )
+                                                ),
+                                                Text(
+                                                  documentSnapshot[
+                                                          Constants.TIME]
+                                                      .toString()
+                                                      .split(" ")[1],
+                                                  style: TextStyle(
+                                                    fontFamily: "Barlow",
+                                                    fontSize: 16,
+                                                    color: Colors.grey.shade400,
+                                                    fontWeight: FontWeight.w300,
+                                                  ),
+                                                ),
                                               ],
                                             ),
-                                          ),
-                                        ],
-                                      ),
-                                      Spacer(),
-                                      Column(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.end,
-                                        children: [
-                                          Text(
-                                            documentSnapshot[Constants.TIME]
-                                                .toString()
-                                                .split(" ")[1],
-                                            style: TextStyle(
-                                              fontSize: 20,
-                                              color: Colors.grey,
+                                            SizedBox(
+                                              height: 5,
                                             ),
-                                          ),
-                                          SizedBox(
-                                            height: 10,
-                                          ),
-                                          Row(
-                                            children: [
-                                              IconButton(
-                                                  icon: const Icon(
-                                                    Icons.edit,
-                                                    color: Colors.grey,
-                                                  ),
-                                                  onPressed: () {
-                                                    //to novatigate for edit purpose
-                                                    Navigator.push(
-                                                      context,
-                                                      MaterialPageRoute(
-                                                        builder: (context) =>
-                                                            MakeToDo(
-                                                                _createOrUpdate,
-                                                                true,
-                                                                documentSnapshot),
+                                            Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment
+                                                      .spaceBetween,
+                                              children: [
+                                                Flexible(
+                                                  child: Container(
+                                                    width: 150,
+                                                    child: Text(
+                                                      documentSnapshot[Constants
+                                                          .DESCRIPTION],
+                                                      maxLines: 1,
+                                                      overflow:
+                                                          TextOverflow.ellipsis,
+                                                      style: TextStyle(
+                                                        fontFamily: "Barlow",
+                                                        fontSize: 18,
+                                                        color: Colors.grey,
+                                                        fontWeight:
+                                                            FontWeight.w400,
                                                       ),
-                                                    );
-                                                  }),
-                                              // This icon button is used to delete a single product
-                                              IconButton(
-                                                  icon: const Icon(
-                                                    Icons.delete,
-                                                    color: Colors.grey,
+                                                    ),
                                                   ),
-                                                  onPressed: () {
-                                                    String category =
-                                                        documentSnapshot[
-                                                            Constants.CATEGORY];
-                                                    _deleteProduct(
-                                                        documentSnapshot.id,
-                                                        category);
-                                                  }),
-                                            ],
-                                          ),
-                                        ],
+                                                ),
+                                                Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.end,
+                                                  children: [
+                                                    GestureDetector(
+                                                      child: Icon(
+                                                        Icons.edit,
+                                                        color:
+                                                            Color(0xff246EB7),
+                                                      ),
+                                                      onTap: () {
+                                                        //to novatigate for edit purpose
+                                                        Navigator.push(
+                                                          context,
+                                                          MaterialPageRoute(
+                                                            builder: (context) =>
+                                                                MakeToDo(
+                                                                    _createOrUpdate,
+                                                                    true,
+                                                                    documentSnapshot),
+                                                          ),
+                                                        );
+                                                      },
+                                                    ),
+                                                    SizedBox(
+                                                      width: 20,
+                                                    ),
+                                                    // This icon button is used to delete a single product
+                                                    GestureDetector(
+                                                      child: Icon(
+                                                        Icons.delete,
+                                                        color:
+                                                            Color(0xffD37B6F),
+                                                      ),
+                                                      onTap: () {
+                                                        String category =
+                                                            documentSnapshot[
+                                                                Constants
+                                                                    .CATEGORY];
+                                                        _deleteProduct(
+                                                            documentSnapshot.id,
+                                                            category);
+                                                      },
+                                                    )
+                                                  ],
+                                                ),
+                                              ],
+                                            ),
+                                          ],
+                                        ),
                                       )
                                     ],
                                   ),
@@ -425,7 +504,6 @@ class _ToDoListHomePageState extends State<ToDoListHomePage> {
       // Add new product
       floatingActionButton: FloatingActionButton(
         backgroundColor: Colors.blueAccent,
-        //onPressed: () => _createOrUpdate(),
         onPressed: () {
           Navigator.push(
             context,

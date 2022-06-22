@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:todo_list_app/res/custom_colors.dart';
 import 'package:todo_list_app/utils/Constants.dart';
+import 'package:todo_list_app/utils/commonFunctions.dart';
 
 class MakeToDo extends StatefulWidget {
   final Function addFilterTx;
@@ -29,7 +30,6 @@ class _MakeToDoState extends State<MakeToDo> {
 
   @override
   void initState() {
-
     //setting the values in their respective fields for edit purpose
     if (widget.isEdit) {
       buttonValue = "UPDATE";
@@ -208,11 +208,14 @@ class _MakeToDoState extends State<MakeToDo> {
                     onPressed: () async {
                       //validations
                       if (todoTitleNameController.text == "") {
-                        showSnackBarWidget("Enter Title", context);
+                        CommonFunction.showSnackBarWidget(
+                            "Enter Title", context);
                       } else if (selectedCategory == null) {
-                        showSnackBarWidget("Select Category", context);
+                        CommonFunction.showSnackBarWidget(
+                            "Select Category", context);
                       } else if (todoDescriptionController.text == "") {
-                        showSnackBarWidget("Enter Description", context);
+                        CommonFunction.showSnackBarWidget(
+                            "Enter Description", context);
                       } else {
                         if (todoDateandTimeastimestampValue == null) {
                           todoDateandTimeastimestampValue =
@@ -237,16 +240,5 @@ class _MakeToDoState extends State<MakeToDo> {
         ),
       ),
     );
-  }
-
-  //snack bar
-  showSnackBarWidget(String text, BuildContext context) {
-    final snackBar = new SnackBar(
-      duration: const Duration(milliseconds: 1000),
-      behavior: SnackBarBehavior.floating,
-      content: Text(text),
-    );
-
-    return ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 }
