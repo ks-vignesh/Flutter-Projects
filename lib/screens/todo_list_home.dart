@@ -2,7 +2,10 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
+import 'package:todo_list_app/models/todo.dart';
 import 'package:todo_list_app/screens/todo_creation_edit.dart';
+import 'package:todo_list_app/services/todo_service.dart';
 import 'package:todo_list_app/utils/Constants.dart';
 import 'package:todo_list_app/utils/commonFunctions.dart';
 import 'package:todo_list_app/widgets/drawer.dart';
@@ -33,7 +36,7 @@ class _ToDoListHomePageState extends State<ToDoListHomePage> {
     _toDos = FirebaseFirestore.instance.collection(
         Constants.FIREBASEDBNAME + '_' + widget.userEmailAddressforID);
 
-    //geting the category counts to display in home page
+    //getting the category counts to display in home page
     FirebaseFirestore.instance
         .collection(
             Constants.FIREBASEDBNAME + '_' + widget.userEmailAddressforID)
@@ -46,8 +49,23 @@ class _ToDoListHomePageState extends State<ToDoListHomePage> {
           } else {
             personalCount++;
           }
+
+          //
+          context.read<TodoService>().addTodo(
+                Todo(
+                  val.docs[i].get(Constants.TITLE),
+                  val.docs[i].get(Constants.DESCRIPTION),
+                  val.docs[i].get(Constants.CATEGORY),
+                  val.docs[i].get(Constants.TIME),
+                  val.docs[i],
+                  val.docs[i].id,
+                ),
+                widget.userEmailAddressforID,
+                true,
+              );
         }
         setState(() {});
+        //notifyListeners();
       } else {
         print("No Data Found");
       }
@@ -55,7 +73,7 @@ class _ToDoListHomePageState extends State<ToDoListHomePage> {
     super.initState();
   }
 
-  // This function is triggered when the floatting button or one of the edit buttons is pressed
+  // This function is triggered when the floating button or one of the edit buttons is pressed
   // Adding a product if no documentSnapshot is passed
   // If documentSnapshot != null then update an existing product
   Future<void> _createOrUpdate([
@@ -75,7 +93,7 @@ class _ToDoListHomePageState extends State<ToDoListHomePage> {
     }
     if (title != null && description != null) {
       if (action == 'create') {
-        // Persist a new product to Firestore
+        // Persist a new todo to Firestore
         await _toDos.add({
           Constants.TITLE: title,
           Constants.DESCRIPTION: description,
@@ -89,11 +107,12 @@ class _ToDoListHomePageState extends State<ToDoListHomePage> {
         } else {
           personalCount++;
         }
-        setState(() {});
+        //notifyListeners();
+        // setState(() {});
       }
 
       if (action == 'update') {
-        // Update the product
+        // Update the todo
         await _toDos.doc(documentSnapshot!.id).update({
           Constants.TITLE: title,
           Constants.DESCRIPTION: description,
@@ -107,23 +126,23 @@ class _ToDoListHomePageState extends State<ToDoListHomePage> {
           personalCount++;
           businessCount--;
         }
-        setState(() {});
+        // setState(() {});
+        // notifyListeners();
       }
     }
   }
 
-  // Deleteing a product by id
-  Future<void> _deleteProduct(String productId, String Category) async {
-    await _toDos.doc(productId).delete();
+  // Deleteing a tod by id
+  Future<void> _deleteProduct(String todoID, String Category) async {
+    context
+        .read<TodoService>()
+        .removeTodo(todoID, widget.userEmailAddressforID);
+
+    //  await _toDos.doc(todoID).delete();
 
     // Show a snackbar
     CommonFunction.showSnackBarWidget(
         'Todo Item Deleted Successfully.', context);
-    /*   ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Todo Item Deleted Successfully.'),
-      ),
-    );*/
 
     //removing the count in home screen
     if (Category == Constants.BUSINESS) {
@@ -131,6 +150,7 @@ class _ToDoListHomePageState extends State<ToDoListHomePage> {
     } else {
       personalCount--;
     }
+
     setState(() {});
   }
 
@@ -320,166 +340,183 @@ class _ToDoListHomePageState extends State<ToDoListHomePage> {
                     (context, AsyncSnapshot<QuerySnapshot> streamSnapshot) {
                   if (streamSnapshot.hasData) {
                     return streamSnapshot.data!.docs.length > 0
-                        ? ListView.builder(
-                            itemCount: streamSnapshot.data!.docs.length,
-                            itemBuilder: (context, index) {
-                              final DocumentSnapshot documentSnapshot =
-                                  streamSnapshot.data!.docs[index];
-                              return Card(
-                                //elevation: 5,
-                                margin: const EdgeInsets.fromLTRB(5, 2, 5, 0),
-                                child: Container(
-                                  padding: EdgeInsets.fromLTRB(8, 0, 8, 0),
-                                  color: Colors.white,
-                                  height: 95,
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.start,
-                                    children: [
-                                      Container(
-                                        width: 60,
-                                        height: 60,
-                                        decoration: BoxDecoration(
-                                          border: Border.all(
-                                            width: 1,
-                                            color: Colors.grey.shade300,
+                        ? Consumer<TodoService>(
+                            builder: (context, value, child) =>
+                                ListView.builder(
+                              //itemCount: streamSnapshot.data!.docs.length,
+                              itemCount: value.todos.length,
+                              itemBuilder: (context, index) {
+                                final DocumentSnapshot documentSnapshot =
+                                    streamSnapshot.data!.docs[index];
+                                return Card(
+                                  //elevation: 5,
+                                  margin: const EdgeInsets.fromLTRB(5, 2, 5, 0),
+                                  child: Container(
+                                    padding: EdgeInsets.fromLTRB(8, 0, 8, 0),
+                                    color: Colors.white,
+                                    height: 95,
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.start,
+                                      children: [
+                                        Container(
+                                          width: 60,
+                                          height: 60,
+                                          decoration: BoxDecoration(
+                                            border: Border.all(
+                                              width: 1,
+                                              color: Colors.grey.shade300,
+                                            ),
+                                            shape: BoxShape.circle,
                                           ),
-                                          shape: BoxShape.circle,
+                                          child: Icon(
+                                            Icons.wysiwyg_rounded,
+                                            size: 30,
+                                            color: Colors.blueAccent,
+                                          ),
                                         ),
-                                        child: Icon(
-                                          Icons.wysiwyg_rounded,
-                                          size: 30,
-                                          color: Colors.blueAccent,
+                                        SizedBox(
+                                          width: 10,
                                         ),
-                                      ),
-                                      SizedBox(
-                                        width: 10,
-                                      ),
-                                      Expanded(
-                                        child: Column(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.center,
-                                          children: [
-                                            Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment
-                                                      .spaceBetween,
-                                              children: [
-                                                Flexible(
-                                                  child: Container(
-                                                    width: 150,
-                                                    child: Text(
-                                                      documentSnapshot[
-                                                          Constants.TITLE],
-                                                      maxLines: 1,
-                                                      overflow:
-                                                          TextOverflow.ellipsis,
-                                                      style: TextStyle(
-                                                        fontFamily: "Barlow",
-                                                        fontSize: 26,
-                                                        color: Colors.black,
-                                                        fontWeight:
-                                                            FontWeight.w400,
+                                        Expanded(
+                                          child: Column(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            children: [
+                                              Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment
+                                                        .spaceBetween,
+                                                children: [
+                                                  Flexible(
+                                                    child: Container(
+                                                      width: 150,
+                                                      child: Text(
+                                                        //   documentSnapshot[                                                            Constants.TITLE],
+                                                        value
+                                                            .todos[index].title,
+                                                        maxLines: 1,
+                                                        overflow: TextOverflow
+                                                            .ellipsis,
+                                                        style: TextStyle(
+                                                          fontFamily: "Barlow",
+                                                          fontSize: 26,
+                                                          color: Colors.black,
+                                                          fontWeight:
+                                                              FontWeight.w400,
+                                                        ),
                                                       ),
                                                     ),
                                                   ),
-                                                ),
-                                                Text(
-                                                  documentSnapshot[
-                                                          Constants.TIME]
-                                                      .toString()
-                                                      .split(" ")[1],
-                                                  style: TextStyle(
-                                                    fontFamily: "Barlow",
-                                                    fontSize: 16,
-                                                    color: Colors.grey.shade400,
-                                                    fontWeight: FontWeight.w300,
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                            SizedBox(
-                                              height: 5,
-                                            ),
-                                            Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment
-                                                      .spaceBetween,
-                                              children: [
-                                                Flexible(
-                                                  child: Container(
-                                                    width: 150,
-                                                    child: Text(
-                                                      documentSnapshot[Constants
-                                                          .DESCRIPTION],
-                                                      maxLines: 1,
-                                                      overflow:
-                                                          TextOverflow.ellipsis,
-                                                      style: TextStyle(
-                                                        fontFamily: "Barlow",
-                                                        fontSize: 18,
-                                                        color: Colors.grey,
-                                                        fontWeight:
-                                                            FontWeight.w400,
-                                                      ),
+                                                  Text(
+                                                    //documentSnapshot[                                                            Constants.TIME]
+                                                    value.todos[index].date
+                                                        .toString()
+                                                        .split(" ")[1],
+                                                    style: TextStyle(
+                                                      fontFamily: "Barlow",
+                                                      fontSize: 16,
+                                                      color:
+                                                          Colors.grey.shade400,
+                                                      fontWeight:
+                                                          FontWeight.w300,
                                                     ),
                                                   ),
-                                                ),
-                                                Row(
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment.end,
-                                                  children: [
-                                                    GestureDetector(
-                                                      child: Icon(
-                                                        Icons.edit,
-                                                        color:
-                                                            Color(0xff246EB7),
+                                                ],
+                                              ),
+                                              SizedBox(
+                                                height: 5,
+                                              ),
+                                              Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment
+                                                        .spaceBetween,
+                                                children: [
+                                                  Flexible(
+                                                    child: Container(
+                                                      width: 150,
+                                                      child: Text(
+                                                        //documentSnapshot[                                                            Constants                                                                .DESCRIPTION],
+                                                        value.todos[index]
+                                                            .description,
+                                                        maxLines: 1,
+                                                        overflow: TextOverflow
+                                                            .ellipsis,
+                                                        style: TextStyle(
+                                                          fontFamily: "Barlow",
+                                                          fontSize: 18,
+                                                          color: Colors.grey,
+                                                          fontWeight:
+                                                              FontWeight.w400,
+                                                        ),
                                                       ),
-                                                      onTap: () {
-                                                        //to novatigate for edit purpose
-                                                        Navigator.push(
-                                                          context,
-                                                          MaterialPageRoute(
-                                                            builder: (context) =>
-                                                                MakeToDo(
-                                                                    _createOrUpdate,
-                                                                    true,
-                                                                    documentSnapshot),
-                                                          ),
-                                                        );
-                                                      },
                                                     ),
-                                                    SizedBox(
-                                                      width: 20,
-                                                    ),
-                                                    // This icon button is used to delete a single product
-                                                    GestureDetector(
-                                                      child: Icon(
-                                                        Icons.delete,
-                                                        color:
-                                                            Color(0xffD37B6F),
+                                                  ),
+                                                  Row(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment.end,
+                                                    children: [
+                                                      GestureDetector(
+                                                        child: Icon(
+                                                          Icons.edit,
+                                                          color:
+                                                              Color(0xff246EB7),
+                                                        ),
+                                                        onTap: () {
+                                                          //to novatigate for edit purpose
+                                                          Navigator.push(
+                                                            context,
+                                                            MaterialPageRoute(
+                                                              builder: (context) =>
+                                                                  MakeToDo(
+                                                                      //   _createOrUpdate,
+                                                                      true,
+                                                                      widget
+                                                                          .userEmailAddressforID,
+                                                                      value
+                                                                          .todos[
+                                                                              index]
+                                                                          .id,
+                                                                      documentSnapshot),
+                                                            ),
+                                                          );
+                                                        },
                                                       ),
-                                                      onTap: () {
-                                                        String category =
-                                                            documentSnapshot[
-                                                                Constants
-                                                                    .CATEGORY];
-                                                        _deleteProduct(
-                                                            documentSnapshot.id,
-                                                            category);
-                                                      },
-                                                    )
-                                                  ],
-                                                ),
-                                              ],
-                                            ),
-                                          ],
-                                        ),
-                                      )
-                                    ],
+                                                      SizedBox(
+                                                        width: 20,
+                                                      ),
+                                                      // This icon button is used to delete a single product
+                                                      GestureDetector(
+                                                        child: Icon(
+                                                          Icons.delete,
+                                                          color:
+                                                              Color(0xffD37B6F),
+                                                        ),
+                                                        onTap: () {
+                                                          String category =
+                                                              value.todos[index]
+                                                                  .category;
+                                                          //   documentSnapshot[                                                                  Constants                                                                      .CATEGORY];
+                                                          _deleteProduct(
+                                                              value.todos[index]
+                                                                  .id
+                                                                  .toString(),
+                                                              category);
+                                                        },
+                                                      )
+                                                    ],
+                                                  ),
+                                                ],
+                                              ),
+                                            ],
+                                          ),
+                                        )
+                                      ],
+                                    ),
                                   ),
-                                ),
-                              );
-                            },
+                                );
+                              },
+                            ),
                           )
                         : Center(
                             child: Text(
@@ -508,7 +545,11 @@ class _ToDoListHomePageState extends State<ToDoListHomePage> {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => MakeToDo(_createOrUpdate, false),
+              builder: (context) => MakeToDo(
+                //  _createOrUpdate,
+                false,
+                widget.userEmailAddressforID,
+              ),
             ),
           );
         },

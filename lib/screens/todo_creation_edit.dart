@@ -3,16 +3,23 @@ import 'package:date_time_picker/date_time_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 import 'package:todo_list_app/res/custom_colors.dart';
+import 'package:todo_list_app/services/todo_service.dart';
 import 'package:todo_list_app/utils/Constants.dart';
 import 'package:todo_list_app/utils/commonFunctions.dart';
 
+import '../models/todo.dart';
+
 class MakeToDo extends StatefulWidget {
-  final Function addFilterTx;
+  late Function addFilterTx;
   DocumentSnapshot? documentSnapshot;
   bool isEdit;
+  String? indexValue;
+  String? emailAddress;
 
-  MakeToDo(this.addFilterTx, this.isEdit, [this.documentSnapshot]);
+  MakeToDo(this.isEdit,
+      [this.emailAddress, this.indexValue, this.documentSnapshot]);
 
   @override
   State<MakeToDo> createState() => _MakeToDoState();
@@ -48,13 +55,39 @@ class _MakeToDoState extends State<MakeToDo> {
 
   void addtheNewThingsinToDoList() {
     //Passing the selected values to Main Search Screen
-    widget.addFilterTx(
+/*    widget.addFilterTx(
       widget.documentSnapshot,
       todoTitleNameController.text,
       todoDescriptionController.text,
       selectedCategory,
       todoDateandTimeastimestampValue.toString(),
-    );
+    );*/
+    if (widget.isEdit) {
+      var tempTodo = Todo(
+        todoTitleNameController.text,
+        todoDescriptionController.text,
+        selectedCategory.toString(),
+        todoDateandTimeastimestampValue.toString(),
+        widget.documentSnapshot,
+      );
+      tempTodo.id = widget.indexValue.toString();
+      context.read<TodoService>().updateTodo(
+            tempTodo,
+            widget.emailAddress.toString(),
+          );
+    } else {
+      context.read<TodoService>().addTodo(
+            Todo(
+              todoTitleNameController.text,
+              todoDescriptionController.text,
+              selectedCategory.toString(),
+              todoDateandTimeastimestampValue.toString(),
+              widget.documentSnapshot,
+            ),
+            widget.emailAddress.toString(),
+            false,
+          );
+    }
     Navigator.of(context).pop();
   }
 
