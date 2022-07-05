@@ -33,7 +33,6 @@ class Authentication {
         ),
       );
     }
-
     return firebaseApp;
   }
 

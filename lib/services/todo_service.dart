@@ -6,14 +6,14 @@ import '../utils/Constants.dart';
 
 class TodoService with ChangeNotifier {
   List<Todo> todos = [];
-  int personalCount = 0;
-  int businessCount = 0;
   FirebaseFirestore firebaseFirestore = FirebaseFirestore.instance;
 
   addTodo(Todo todo, String emailAddress, bool isInitialLoad) async {
     if (isInitialLoad) {
+      //while initial app launch if user has some todo's then this block will be executed
       todos.add(todo);
     } else {
+      //Adding the todo
       await firebaseFirestore
           .collection(Constants.FIREBASEDBNAME + '_' + emailAddress)
           .add({
@@ -30,6 +30,7 @@ class TodoService with ChangeNotifier {
   }
 
   removeTodo(id, String emailAddress) async {
+    //deleting the todo using ID
     var index = todos.indexWhere((element) => element.id == id);
     if (index != -1) {
       await firebaseFirestore
@@ -42,6 +43,7 @@ class TodoService with ChangeNotifier {
   }
 
   updateTodo(Todo todo, String emailAddress) async {
+    //updating the todo using ID
     var index = todos.indexWhere((element) => element.id == todo.id);
     if (index != -1) {
       await firebaseFirestore

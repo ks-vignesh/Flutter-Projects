@@ -1,4 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:date_time_picker/date_time_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -12,14 +11,14 @@ import 'package:todo_list_app/utils/commonFunctions.dart';
 import '../models/todo.dart';
 
 class MakeToDo extends StatefulWidget {
-  late Function addFilterTx;
-  DocumentSnapshot? documentSnapshot;
+  final Function addCategoryCallback;
+  Todo? editTodo;
   bool isEdit;
   String? indexValue;
   String? emailAddress;
 
-  MakeToDo(this.isEdit,
-      [this.emailAddress, this.indexValue, this.documentSnapshot]);
+  MakeToDo(this.addCategoryCallback, this.isEdit,
+      [this.emailAddress, this.indexValue, this.editTodo]);
 
   @override
   State<MakeToDo> createState() => _MakeToDoState();
@@ -41,48 +40,47 @@ class _MakeToDoState extends State<MakeToDo> {
     if (widget.isEdit) {
       buttonValue = "UPDATE";
       setState(() {
-        todoTitleNameController.text =
-            widget.documentSnapshot![Constants.TITLE];
-        todoDescriptionController.text =
-            widget.documentSnapshot![Constants.DESCRIPTION];
-        selectedCategory = widget.documentSnapshot![Constants.CATEGORY];
-        todoDateandTimeastimestampValue =
-            widget.documentSnapshot![Constants.TIME];
+        todoTitleNameController.text = widget.editTodo!.title;
+        todoDescriptionController.text = widget.editTodo!.description;
+        selectedCategory = widget.editTodo!.category;
+        todoDateandTimeastimestampValue = widget.editTodo!.date;
       });
     }
     super.initState();
   }
 
   void addtheNewThingsinToDoList() {
-    //Passing the selected values to Main Search Screen
-/*    widget.addFilterTx(
-      widget.documentSnapshot,
-      todoTitleNameController.text,
-      todoDescriptionController.text,
-      selectedCategory,
-      todoDateandTimeastimestampValue.toString(),
-    );*/
     if (widget.isEdit) {
+      //Edit functionality todo
       var tempTodo = Todo(
         todoTitleNameController.text,
         todoDescriptionController.text,
         selectedCategory.toString(),
         todoDateandTimeastimestampValue.toString(),
-        widget.documentSnapshot,
+        widget.editTodo,
       );
       tempTodo.id = widget.indexValue.toString();
       context.read<TodoService>().updateTodo(
             tempTodo,
             widget.emailAddress.toString(),
           );
+
+      //we need to pass only if there any changes in category while editing else don't need to pass callback
+      if (widget.editTodo!.category != selectedCategory.toString()) {
+        widget.addCategoryCallback(
+            Constants.UPDATEACTION, selectedCategory.toString());
+      }
     } else {
+      //Add functionality todo
+      widget.addCategoryCallback(
+          Constants.ADDACTION, selectedCategory.toString());
       context.read<TodoService>().addTodo(
             Todo(
               todoTitleNameController.text,
               todoDescriptionController.text,
               selectedCategory.toString(),
               todoDateandTimeastimestampValue.toString(),
-              widget.documentSnapshot,
+              widget.editTodo,
             ),
             widget.emailAddress.toString(),
             false,

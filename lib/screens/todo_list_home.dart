@@ -23,11 +23,6 @@ class ToDoListHomePage extends StatefulWidget {
 class _ToDoListHomePageState extends State<ToDoListHomePage> {
   late CollectionReference _toDos;
   GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
-
-  String title = "";
-  String category = "";
-  String description = "";
-  String time = "";
   int personalCount = 0;
   int businessCount = 0;
 
@@ -50,7 +45,7 @@ class _ToDoListHomePageState extends State<ToDoListHomePage> {
             personalCount++;
           }
 
-          //
+          //loading the available todo in Todo Model
           context.read<TodoService>().addTodo(
                 Todo(
                   val.docs[i].get(Constants.TITLE),
@@ -65,7 +60,6 @@ class _ToDoListHomePageState extends State<ToDoListHomePage> {
               );
         }
         setState(() {});
-        //notifyListeners();
       } else {
         print("No Data Found");
       }
@@ -73,72 +67,30 @@ class _ToDoListHomePageState extends State<ToDoListHomePage> {
     super.initState();
   }
 
-  // This function is triggered when the floating button or one of the edit buttons is pressed
-  // Adding a product if no documentSnapshot is passed
-  // If documentSnapshot != null then update an existing product
-  Future<void> _createOrUpdate([
-    DocumentSnapshot? documentSnapshot,
-    String? title,
-    String? description,
-    String? category,
-    String? time,
-  ]) async {
-    String action = Constants.CREATE;
-    this.title = title!;
-    this.description = description!;
-    this.category = category!;
-    this.time = time.toString();
-    if (documentSnapshot != null) {
-      action = Constants.UPDATE;
-    }
-    if (title != null && description != null) {
-      if (action == 'create') {
-        // Persist a new todo to Firestore
-        await _toDos.add({
-          Constants.TITLE: title,
-          Constants.DESCRIPTION: description,
-          Constants.CATEGORY: category,
-          Constants.TIME: time,
-        });
-
-        //getting add todo category
-        if (category == Constants.BUSINESS) {
-          businessCount++;
-        } else {
-          personalCount++;
-        }
-        //notifyListeners();
-        // setState(() {});
+  getCategoryCount(String action, String category) {
+    if (action == Constants.ADDACTION) {
+      if (category == Constants.BUSINESS) {
+        businessCount++;
+      } else {
+        personalCount++;
       }
-
-      if (action == 'update') {
-        // Update the todo
-        await _toDos.doc(documentSnapshot!.id).update({
-          Constants.TITLE: title,
-          Constants.DESCRIPTION: description,
-          Constants.CATEGORY: category,
-          Constants.TIME: time,
-        });
-        if (category == Constants.BUSINESS) {
-          businessCount++;
-          personalCount--;
-        } else {
-          personalCount++;
-          businessCount--;
-        }
-        // setState(() {});
-        // notifyListeners();
+    } else if (action == Constants.UPDATEACTION) {
+      if (category == Constants.BUSINESS) {
+        businessCount++;
+        personalCount--;
+      } else {
+        personalCount++;
+        businessCount--;
       }
     }
+    setState(() {});
   }
 
-  // Deleteing a tod by id
+  // Deleting a tod by id
   Future<void> _deleteProduct(String todoID, String Category) async {
     context
         .read<TodoService>()
         .removeTodo(todoID, widget.userEmailAddressforID);
-
-    //  await _toDos.doc(todoID).delete();
 
     // Show a snackbar
     CommonFunction.showSnackBarWidget(
@@ -150,7 +102,6 @@ class _ToDoListHomePageState extends State<ToDoListHomePage> {
     } else {
       personalCount--;
     }
-
     setState(() {});
   }
 
@@ -343,11 +294,8 @@ class _ToDoListHomePageState extends State<ToDoListHomePage> {
                         ? Consumer<TodoService>(
                             builder: (context, value, child) =>
                                 ListView.builder(
-                              //itemCount: streamSnapshot.data!.docs.length,
                               itemCount: value.todos.length,
                               itemBuilder: (context, index) {
-                                final DocumentSnapshot documentSnapshot =
-                                    streamSnapshot.data!.docs[index];
                                 return Card(
                                   //elevation: 5,
                                   margin: const EdgeInsets.fromLTRB(5, 2, 5, 0),
@@ -392,7 +340,6 @@ class _ToDoListHomePageState extends State<ToDoListHomePage> {
                                                     child: Container(
                                                       width: 150,
                                                       child: Text(
-                                                        //   documentSnapshot[                                                            Constants.TITLE],
                                                         value
                                                             .todos[index].title,
                                                         maxLines: 1,
@@ -409,7 +356,6 @@ class _ToDoListHomePageState extends State<ToDoListHomePage> {
                                                     ),
                                                   ),
                                                   Text(
-                                                    //documentSnapshot[                                                            Constants.TIME]
                                                     value.todos[index].date
                                                         .toString()
                                                         .split(" ")[1],
@@ -436,7 +382,6 @@ class _ToDoListHomePageState extends State<ToDoListHomePage> {
                                                     child: Container(
                                                       width: 150,
                                                       child: Text(
-                                                        //documentSnapshot[                                                            Constants                                                                .DESCRIPTION],
                                                         value.todos[index]
                                                             .description,
                                                         maxLines: 1,
@@ -467,17 +412,20 @@ class _ToDoListHomePageState extends State<ToDoListHomePage> {
                                                           Navigator.push(
                                                             context,
                                                             MaterialPageRoute(
-                                                              builder: (context) =>
-                                                                  MakeToDo(
-                                                                      //   _createOrUpdate,
-                                                                      true,
-                                                                      widget
-                                                                          .userEmailAddressforID,
-                                                                      value
-                                                                          .todos[
-                                                                              index]
-                                                                          .id,
-                                                                      documentSnapshot),
+                                                              builder:
+                                                                  (context) =>
+                                                                      MakeToDo(
+                                                                getCategoryCount,
+                                                                true,
+                                                                widget
+                                                                    .userEmailAddressforID,
+                                                                value
+                                                                    .todos[
+                                                                        index]
+                                                                    .id,
+                                                                value.todos[
+                                                                    index],
+                                                              ),
                                                             ),
                                                           );
                                                         },
@@ -496,7 +444,6 @@ class _ToDoListHomePageState extends State<ToDoListHomePage> {
                                                           String category =
                                                               value.todos[index]
                                                                   .category;
-                                                          //   documentSnapshot[                                                                  Constants                                                                      .CATEGORY];
                                                           _deleteProduct(
                                                               value.todos[index]
                                                                   .id
@@ -546,7 +493,7 @@ class _ToDoListHomePageState extends State<ToDoListHomePage> {
             context,
             MaterialPageRoute(
               builder: (context) => MakeToDo(
-                //  _createOrUpdate,
+                getCategoryCount,
                 false,
                 widget.userEmailAddressforID,
               ),

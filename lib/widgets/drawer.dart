@@ -20,7 +20,6 @@ class NavigationDrawer extends StatefulWidget {
 
 class _NavigationDrawerState extends State<NavigationDrawer> {
   late User _user;
-  bool _isSigningOut = false;
 
   Route _routeToSignInScreen() {
     return PageRouteBuilder(
@@ -74,7 +73,6 @@ class _NavigationDrawerState extends State<NavigationDrawer> {
       },
       divider: HorizontalLine(),
     );
-
     setState(() {
       userEmailAddress = _user.email;
     });
@@ -89,7 +87,6 @@ class _NavigationDrawerState extends State<NavigationDrawer> {
     ];
 
     currentUserRoleFeatureList = superAdmin;
-
     return Drawer(
       backgroundColor: Colors.white,
       child: Column(
@@ -152,7 +149,6 @@ class _NavigationDrawerState extends State<NavigationDrawer> {
     return DrawerHeader(
         margin: EdgeInsets.zero,
         padding: EdgeInsets.zero,
-
         child: Container(
           height: 50,
           child: _user.photoURL != null
@@ -178,26 +174,7 @@ class _NavigationDrawerState extends State<NavigationDrawer> {
                     ),
                   ),
                 ),
-        )
-
-        /*        Stack(
-            children: <Widget>[
-              Positioned(
-                bottom: 12.0,
-                left: 16.0,
-                child: Text(
-                  userEmailAddress.toString(),
-                  //'username@gmail.com',
-                  style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 20.0,
-                      fontWeight: FontWeight.w500),
-                ),
-              ),
-            ],
-          ),*/
-
-        );
+        ));
   }
 
   //body
@@ -244,20 +221,7 @@ class _NavigationDrawerState extends State<NavigationDrawer> {
       onPressed: () async {
         await Future.delayed(Duration(seconds: 1));
         await Authentication.signOut(context: context);
-
         Navigator.of(context).pushReplacement(_routeToSignInScreen());
-
-        /*    Navigator.of(context).pushAndRemoveUntil(
-          // the new route
-          MaterialPageRoute(
-            builder: (BuildContext context) => SignInScreen(),
-          ),
-
-          // this function should return true when we're done removing routes
-          // but because we want to remove all other screens, we make it
-          // always return false
-          (Route route) => false,
-        );*/
       },
     );
 
