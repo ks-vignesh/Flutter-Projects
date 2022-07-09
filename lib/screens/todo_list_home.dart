@@ -28,6 +28,7 @@ class _ToDoListHomePageState extends State<ToDoListHomePage> {
 
   @override
   void initState() {
+    TodoService().getTodoLength().toString();
     _toDos = FirebaseFirestore.instance.collection(
         Constants.FIREBASEDBNAME + '_' + widget.userEmailAddressforID);
 
@@ -294,7 +295,9 @@ class _ToDoListHomePageState extends State<ToDoListHomePage> {
                         ? Consumer<TodoService>(
                             builder: (context, value, child) =>
                                 ListView.builder(
-                              itemCount: value.todos.length,
+                              itemCount: streamSnapshot.data!.docs.length > 0
+                                  ? value.todos.length
+                                  : 0,
                               itemBuilder: (context, index) {
                                 return Card(
                                   //elevation: 5,
@@ -475,10 +478,9 @@ class _ToDoListHomePageState extends State<ToDoListHomePage> {
                               ),
                             ),
                           );
+                  }else{
+                    return Container();
                   }
-                  return const Center(
-                    child: Text("No Data Found"),
-                  );
                 },
               ),
             ),

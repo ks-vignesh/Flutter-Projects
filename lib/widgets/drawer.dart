@@ -1,9 +1,11 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:todo_list_app/res/custom_colors.dart';
 import 'package:todo_list_app/screens/sign_in_screen.dart';
 import 'package:todo_list_app/screens/todo_list_home.dart';
+import 'package:todo_list_app/services/todo_service.dart';
 
 import '../utils/authentication.dart';
 
@@ -77,7 +79,7 @@ class _NavigationDrawerState extends State<NavigationDrawer> {
       userEmailAddress = _user.email;
     });
   }
-
+  GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
   @override
   Widget build(BuildContext context) {
     List<DrawerItems> currentUserRoleFeatureList;
@@ -88,6 +90,7 @@ class _NavigationDrawerState extends State<NavigationDrawer> {
 
     currentUserRoleFeatureList = superAdmin;
     return Drawer(
+      key: scaffoldKey,
       backgroundColor: Colors.white,
       child: Column(
         children: [
@@ -220,6 +223,8 @@ class _NavigationDrawerState extends State<NavigationDrawer> {
       child: Text("Yes"),
       onPressed: () async {
         await Future.delayed(Duration(seconds: 1));
+        TodoService().clearTodos(context);
+      //  Provider.of<TodoService>(context).dispose();
         await Authentication.signOut(context: context);
         Navigator.of(context).pushReplacement(_routeToSignInScreen());
       },
