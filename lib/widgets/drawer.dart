@@ -223,8 +223,7 @@ class _NavigationDrawerState extends State<NavigationDrawer> {
       child: Text("Yes"),
       onPressed: () async {
         await Future.delayed(Duration(seconds: 1));
-        TodoService().clearTodos(context);
-      //  Provider.of<TodoService>(context).dispose();
+        TodoService(context).clearTodos();
         await Authentication.signOut(context: context);
         Navigator.of(context).pushReplacement(_routeToSignInScreen());
       },

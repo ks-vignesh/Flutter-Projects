@@ -14,8 +14,8 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // adding Todo Service at top
-    return ChangeNotifierProvider<TodoService>.value(
-      value: TodoService(),
+    return ChangeNotifierProvider<TodoService>(
+      create: (context) => TodoService(context),
       child: MaterialApp(
         title: 'Todo List',
         debugShowCheckedModeBanner: false,

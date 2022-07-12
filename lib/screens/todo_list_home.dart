@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -28,7 +30,6 @@ class _ToDoListHomePageState extends State<ToDoListHomePage> {
 
   @override
   void initState() {
-    TodoService().getTodoLength().toString();
     _toDos = FirebaseFirestore.instance.collection(
         Constants.FIREBASEDBNAME + '_' + widget.userEmailAddressforID);
 
@@ -39,6 +40,7 @@ class _ToDoListHomePageState extends State<ToDoListHomePage> {
         .get()
         .then((val) {
       if (val.docs.length > 0) {
+        TodoService(context).todos.clear();
         for (int i = 0; i < val.docs.length; i++) {
           if (val.docs[i].get(Constants.CATEGORY) == Constants.BUSINESS) {
             businessCount++;
@@ -106,161 +108,203 @@ class _ToDoListHomePageState extends State<ToDoListHomePage> {
     setState(() {});
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      // Using StreamBuilder to display all products from Firestore in real-time
-      resizeToAvoidBottomInset: false,
-      backgroundColor: Colors.white,
-      key: scaffoldKey,
-      drawer: NavigationDrawer(user: widget.user),
-      body: Container(
-        child: Column(
-          children: [
-            Container(
-              height: MediaQuery.of(context).size.height * 0.35,
-              padding: EdgeInsets.fromLTRB(15, 0, 10, 0),
-              child: Row(
-                children: [
-                  Container(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        SizedBox(
-                          height: 25,
-                        ),
-                        IconButton(
-                            icon: Icon(
-                              Icons.menu,
-                              size: 30,
-                              color: Colors.white,
-                            ),
-                            alignment: Alignment.topLeft,
-                            onPressed: () {
-                              scaffoldKey.currentState!.openDrawer();
-                            }),
-                        SizedBox(
-                          height: 10,
-                        ),
-                        Text(
-                          ' Your',
-                          style: TextStyle(
-                            fontFamily: "Barlow",
-                            fontSize: 36,
-                            color: Colors.white,
-                            fontWeight: FontWeight.w300,
-                          ),
-                        ),
-                        Text(
-                          ' Things',
-                          style: TextStyle(
-                            fontFamily: "Barlow",
-                            fontSize: 36,
-                            color: Colors.white,
-                            fontWeight: FontWeight.w300,
-                          ),
-                        ),
-                        SizedBox(
-                          height: 35,
-                        ),
-                        Text(
-                          "  " +
-                              DateFormat('MMM dd, yyyy')
-                                  .format(DateTime.now())
-                                  .toString(),
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontFamily: "Barlow",
-                            color: Colors.white60,
-                            fontWeight: FontWeight.w300,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Spacer(),
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.end,
+  getHeaderPartofUIScreen() {
+    return Container(
+      height: MediaQuery.of(context).size.height * 0.35,
+      child: new Stack(
+        fit: StackFit.expand,
+        children: <Widget>[
+          new Image.asset(
+            'assets/todo_home.jpg',
+            fit: BoxFit.fitHeight,
+          ),
+          Positioned(
+            bottom: MediaQuery.of(context).size.height * 0.04,
+            left: 0,
+            right: MediaQuery.of(context).size.width * 0.50,
+            top: 0,
+            child: Container(
+              width: MediaQuery.of(context).size.width * 0.50,
+              //height: MediaQuery.of(context).size.width * 0.40,
+              // color: Colors.black.withOpacity(0.1),
+              child: BackdropFilter(
+                filter: new ImageFilter.blur(
+                  sigmaX: 0.0,
+                  sigmaY: 0.0,
+                ),
+                child: Container(
+                  // width: MediaQuery.of(context).size.width * 0.50,
+                  color: Colors.transparent,
+                  child: Row(
                     children: [
-                      Row(
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Column(
-                            children: [
-                              Row(
-                                children: [
-                                  Container(
-                                    width: 58,
-                                  ),
-                                  Text(
-                                    personalCount.toString(),
-                                    style: TextStyle(
-                                      fontSize: 26,
-                                      color: Colors.white,
-                                      fontFamily: "Barlow",
-                                      fontWeight: FontWeight.w700,
-                                    ),
-                                  ),
-                                ],
+                          SizedBox(
+                            height: 25,
+                          ),
+                          IconButton(
+                              icon: Icon(
+                                Icons.menu,
+                                size: 30,
+                                color: Colors.white,
                               ),
-                              Text(
-                                'Personal',
-                                style: TextStyle(
-                                  fontFamily: "Barlow",
-                                  fontSize: 20,
-                                  color: Colors.white60,
-                                  fontWeight: FontWeight.w400,
-                                ),
-                              ),
-                            ],
+                              alignment: Alignment.topLeft,
+                              onPressed: () {
+                                scaffoldKey.currentState!.openDrawer();
+                              }),
+                          SizedBox(
+                            height: 10,
+                          ),
+                          Text(
+                            ' Your',
+                            style: TextStyle(
+                              fontFamily: "Barlow",
+                              fontSize: 36,
+                              color: Colors.white,
+                              fontWeight: FontWeight.w300,
+                            ),
+                          ),
+                          Text(
+                            ' Things',
+                            style: TextStyle(
+                              fontFamily: "Barlow",
+                              fontSize: 36,
+                              color: Colors.white,
+                              fontWeight: FontWeight.w300,
+                            ),
                           ),
                           SizedBox(
-                            width: 10,
+                            height: 30,
                           ),
-                          Column(
-                            children: [
-                              Row(
-                                children: [
-                                  Container(
-                                    width: 58,
-                                  ),
-                                  Text(
-                                    businessCount.toString(),
-                                    style: TextStyle(
-                                      fontSize: 26,
-                                      color: Colors.white,
-                                      fontFamily: "Barlow",
-                                      fontWeight: FontWeight.w700,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              Text(
-                                'Business',
-                                style: TextStyle(
-                                  fontFamily: "Barlow",
-                                  fontSize: 20,
-                                  color: Colors.white60,
-                                  fontWeight: FontWeight.w400,
-                                ),
-                              ),
-                            ],
+                          Text(
+                            "  " +
+                                DateFormat('MMM dd, yyyy')
+                                    .format(DateTime.now())
+                                    .toString(),
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontFamily: "Barlow",
+                              color: Colors.white60,
+                              fontWeight: FontWeight.w300,
+                            ),
                           ),
                         ],
-                      )
+                      ),
                     ],
-                  )
-                ],
-              ),
-              decoration: BoxDecoration(
-                color: Colors.blue,
-                image: DecorationImage(
-                  fit: BoxFit.fill,
-                  image: AssetImage('assets/todo_home.jpg'),
+                  ),
                 ),
               ),
             ),
-            SizedBox(
+          ),
+          Positioned(
+            bottom: 0,
+            left: MediaQuery.of(context).size.width * 0.50,
+            right: 0,
+            top: 0,
+            child: Container(
+              width: MediaQuery.of(context).size.width * 0.50,
+              height: MediaQuery.of(context).size.width * 0.40,
+              color: Colors.black.withOpacity(0.1),
+              child: BackdropFilter(
+                filter: new ImageFilter.blur(
+                  sigmaX: 0.0,
+                  sigmaY: 0.0,
+                ),
+                child: Container(
+                  // width: MediaQuery.of(context).size.width * 0.50,
+                  color: Colors.transparent,
+                  child: Row(
+                    children: [
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          Row(
+                            children: [
+                              SizedBox(
+                                width: 5,
+                              ),
+                              Column(
+                                children: [
+                                  Row(
+                                    children: [
+                                      Container(
+                                        width: 58,
+                                      ),
+                                      Text(
+                                        personalCount.toString(),
+                                        style: TextStyle(
+                                          fontSize: 26,
+                                          color: Colors.white,
+                                          fontFamily: "Barlow",
+                                          fontWeight: FontWeight.w700,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  Text(
+                                    'Personal',
+                                    style: TextStyle(
+                                      fontFamily: "Barlow",
+                                      fontSize: 18,
+                                      color: Colors.white60,
+                                      fontWeight: FontWeight.w400,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              SizedBox(
+                                width: 20,
+                              ),
+                              Column(
+                                children: [
+                                  Row(
+                                    children: [
+                                      Container(
+                                        width: 58,
+                                      ),
+                                      Text(
+                                        businessCount.toString(),
+                                        style: TextStyle(
+                                          fontSize: 26,
+                                          color: Colors.white,
+                                          fontFamily: "Barlow",
+                                          fontWeight: FontWeight.w700,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  Text(
+                                    'Business',
+                                    style: TextStyle(
+                                      fontFamily: "Barlow",
+                                      fontSize: 18,
+                                      color: Colors.white60,
+                                      fontWeight: FontWeight.w400,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              SizedBox(
+                                width: 3,
+                              ),
+                            ],
+                          )
+                        ],
+                      )
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+          Positioned(
+            bottom: 0,
+            left: 0,
+            right: MediaQuery.of(context).size.width * 0.50,
+            top: MediaQuery.of(context).size.height * 0.345,
+            child: SizedBox(
               height: 10.0,
               child: new Center(
                 child: new Container(
@@ -270,22 +314,40 @@ class _ToDoListHomePageState extends State<ToDoListHomePage> {
                 ),
               ),
             ),
-            Container(
-              margin: EdgeInsets.fromLTRB(20, 10, 10, 5),
-              alignment: Alignment.centerLeft,
-              child: Text(
-                "INBOX",
-                style: TextStyle(
-                  fontFamily: "Barlow",
-                  fontSize: 18,
-                  color: Colors.grey,
-                  fontWeight: FontWeight.w400,
-                ),
+          )
+        ],
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      // Using StreamBuilder to display all products from Firestore in real-time
+      resizeToAvoidBottomInset: false,
+      backgroundColor: Colors.white,
+      key: scaffoldKey,
+      drawer: NavigationDrawer(user: widget.user),
+      body: Column(
+        children: [
+          getHeaderPartofUIScreen(),
+          Container(
+            margin: EdgeInsets.fromLTRB(20, 15, 10, 5),
+            alignment: Alignment.centerLeft,
+            child: Text(
+              "INBOX",
+              style: TextStyle(
+                fontFamily: "Barlow",
+                fontSize: 18,
+                color: Colors.grey,
+                fontWeight: FontWeight.w400,
               ),
             ),
-            Container(
+          ),
+          SingleChildScrollView(
+            child: Container(
               margin: EdgeInsets.fromLTRB(5, 0, 5, 0),
-              height: MediaQuery.of(context).size.height * 0.58,
+              height: MediaQuery.of(context).size.height * 0.55,
               child: StreamBuilder(
                 stream: _toDos.snapshots(),
                 builder:
@@ -478,14 +540,14 @@ class _ToDoListHomePageState extends State<ToDoListHomePage> {
                               ),
                             ),
                           );
-                  }else{
+                  } else {
                     return Container();
                   }
                 },
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
       // Add new product
       floatingActionButton: FloatingActionButton(

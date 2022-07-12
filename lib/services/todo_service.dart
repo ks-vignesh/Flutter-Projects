@@ -8,26 +8,21 @@ import '../utils/Constants.dart';
 class TodoService with ChangeNotifier {
   List<Todo> todos = [];
   FirebaseFirestore firebaseFirestore = FirebaseFirestore.instance;
+  BuildContext context;
 
-  clearTodos([BuildContext? context]) {
+  TodoService(this.context);
+
+  clearTodos() {
     //while closing app clear the object
-    print("todos object lenght=" + todos.length.toString());
     todos.clear();
-    Provider.of<TodoService>(context!, listen: false).dispose();
-    print("todos object cleared");
-    print("todos object lenght=" + todos.length.toString());
+    Provider.of<TodoService>(context, listen: false).dispose();
     notifyListeners();
-  }
-
-  getTodoLength() {
-    print("get to do length=" + todos.length.toString());
   }
 
   addTodo(Todo todo, String emailAddress, bool isInitialLoad) async {
     if (isInitialLoad) {
       //while initial app launch if user has some todo's then this block will be executed
       todos.add(todo);
-      print("get to do length=" + todos.length.toString());
     } else {
       //Adding the todo
       await firebaseFirestore
