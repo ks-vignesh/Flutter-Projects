@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -134,6 +136,218 @@ class _ToDoListHomePageState extends State<ToDoListHomePage> {
     setState(() {});
   }
 
+  getHeaderPartofUIScreen() {
+    return Container(
+      height: MediaQuery.of(context).size.height * 0.35,
+      child: new Stack(
+        fit: StackFit.expand,
+        children: <Widget>[
+          new Image.asset(
+            'assets/todo_home.jpg',
+            fit: BoxFit.fitHeight,
+          ),
+          Positioned(
+            bottom: MediaQuery.of(context).size.height * 0.04,
+            left: 0,
+            right: MediaQuery.of(context).size.width * 0.50,
+            top: 0,
+            child: Container(
+              width: MediaQuery.of(context).size.width * 0.50,
+              //height: MediaQuery.of(context).size.width * 0.40,
+              // color: Colors.black.withOpacity(0.1),
+              child: BackdropFilter(
+                filter: new ImageFilter.blur(
+                  sigmaX: 0.0,
+                  sigmaY: 0.0,
+                ),
+                child: Container(
+                  // width: MediaQuery.of(context).size.width * 0.50,
+                  color: Colors.transparent,
+                  child: Row(
+                    children: [
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          SizedBox(
+                            height: 25,
+                          ),
+                          IconButton(
+                              icon: Icon(
+                                Icons.menu,
+                                size: 30,
+                                color: Colors.white,
+                              ),
+                              alignment: Alignment.topLeft,
+                              onPressed: () {
+                                scaffoldKey.currentState!.openDrawer();
+                              }),
+                          SizedBox(
+                            height: 10,
+                          ),
+                          Text(
+                            ' Your',
+                            style: TextStyle(
+                              fontFamily: "Barlow",
+                              fontSize: 36,
+                              color: Colors.white,
+                              fontWeight: FontWeight.w300,
+                            ),
+                          ),
+                          Text(
+                            ' Things',
+                            style: TextStyle(
+                              fontFamily: "Barlow",
+                              fontSize: 36,
+                              color: Colors.white,
+                              fontWeight: FontWeight.w300,
+                            ),
+                          ),
+                          SizedBox(
+                            height: 30,
+                          ),
+                          Text(
+                            "  " +
+                                DateFormat('MMM dd, yyyy')
+                                    .format(DateTime.now())
+                                    .toString(),
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontFamily: "Barlow",
+                              color: Colors.white60,
+                              fontWeight: FontWeight.w300,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+          Positioned(
+            bottom: 0,
+            left: MediaQuery.of(context).size.width * 0.50,
+            right: 0,
+            top: 0,
+            child: Container(
+              width: MediaQuery.of(context).size.width * 0.50,
+              height: MediaQuery.of(context).size.width * 0.40,
+              color: Colors.black.withOpacity(0.1),
+              child: BackdropFilter(
+                filter: new ImageFilter.blur(
+                  sigmaX: 0.0,
+                  sigmaY: 0.0,
+                ),
+                child: Container(
+                  // width: MediaQuery.of(context).size.width * 0.50,
+                  color: Colors.transparent,
+                  child: Row(
+                    children: [
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          Row(
+                            children: [
+                              SizedBox(
+                                width: 5,
+                              ),
+                              Column(
+                                children: [
+                                  Row(
+                                    children: [
+                                      Container(
+                                        width: 58,
+                                      ),
+                                      Text(
+                                        personalCount.toString(),
+                                        style: TextStyle(
+                                          fontSize: 26,
+                                          color: Colors.white,
+                                          fontFamily: "Barlow",
+                                          fontWeight: FontWeight.w700,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  Text(
+                                    'Personal',
+                                    style: TextStyle(
+                                      fontFamily: "Barlow",
+                                      fontSize: 18,
+                                      color: Colors.white60,
+                                      fontWeight: FontWeight.w400,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              SizedBox(
+                                width: 20,
+                              ),
+                              Column(
+                                children: [
+                                  Row(
+                                    children: [
+                                      Container(
+                                        width: 58,
+                                      ),
+                                      Text(
+                                        businessCount.toString(),
+                                        style: TextStyle(
+                                          fontSize: 26,
+                                          color: Colors.white,
+                                          fontFamily: "Barlow",
+                                          fontWeight: FontWeight.w700,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  Text(
+                                    'Business',
+                                    style: TextStyle(
+                                      fontFamily: "Barlow",
+                                      fontSize: 18,
+                                      color: Colors.white60,
+                                      fontWeight: FontWeight.w400,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              SizedBox(
+                                width: 3,
+                              ),
+                            ],
+                          )
+                        ],
+                      )
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+          Positioned(
+            bottom: 0,
+            left: 0,
+            right: MediaQuery.of(context).size.width * 0.50,
+            top: MediaQuery.of(context).size.height * 0.345,
+            child: SizedBox(
+              height: 10.0,
+              child: new Center(
+                child: new Container(
+                  margin: new EdgeInsetsDirectional.only(start: 1.0, end: 1.0),
+                  height: 4.0,
+                  color: Colors.blue,
+                ),
+              ),
+            ),
+          )
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -145,161 +359,9 @@ class _ToDoListHomePageState extends State<ToDoListHomePage> {
       body: Container(
         child: Column(
           children: [
+            getHeaderPartofUIScreen(),
             Container(
-              height: MediaQuery.of(context).size.height * 0.35,
-              padding: EdgeInsets.fromLTRB(15, 0, 10, 0),
-              child: Row(
-                children: [
-                  Container(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        SizedBox(
-                          height: 25,
-                        ),
-                        IconButton(
-                            icon: Icon(
-                              Icons.menu,
-                              size: 30,
-                              color: Colors.white,
-                            ),
-                            alignment: Alignment.topLeft,
-                            onPressed: () {
-                              scaffoldKey.currentState!.openDrawer();
-                            }),
-                        SizedBox(
-                          height: 10,
-                        ),
-                        Text(
-                          ' Your',
-                          style: TextStyle(
-                            fontFamily: "Barlow",
-                            fontSize: 36,
-                            color: Colors.white,
-                            fontWeight: FontWeight.w300,
-                          ),
-                        ),
-                        Text(
-                          ' Things',
-                          style: TextStyle(
-                            fontFamily: "Barlow",
-                            fontSize: 36,
-                            color: Colors.white,
-                            fontWeight: FontWeight.w300,
-                          ),
-                        ),
-                        SizedBox(
-                          height: 35,
-                        ),
-                        Text(
-                          "  " +
-                              DateFormat('MMM dd, yyyy')
-                                  .format(DateTime.now())
-                                  .toString(),
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontFamily: "Barlow",
-                            color: Colors.white60,
-                            fontWeight: FontWeight.w300,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Spacer(),
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      Row(
-                        children: [
-                          Column(
-                            children: [
-                              Row(
-                                children: [
-                                  Container(
-                                    width: 58,
-                                  ),
-                                  Text(
-                                    personalCount.toString(),
-                                    style: TextStyle(
-                                      fontSize: 26,
-                                      color: Colors.white,
-                                      fontFamily: "Barlow",
-                                      fontWeight: FontWeight.w700,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              Text(
-                                'Personal',
-                                style: TextStyle(
-                                  fontFamily: "Barlow",
-                                  fontSize: 20,
-                                  color: Colors.white60,
-                                  fontWeight: FontWeight.w400,
-                                ),
-                              ),
-                            ],
-                          ),
-                          SizedBox(
-                            width: 10,
-                          ),
-                          Column(
-                            children: [
-                              Row(
-                                children: [
-                                  Container(
-                                    width: 58,
-                                  ),
-                                  Text(
-                                    businessCount.toString(),
-                                    style: TextStyle(
-                                      fontSize: 26,
-                                      color: Colors.white,
-                                      fontFamily: "Barlow",
-                                      fontWeight: FontWeight.w700,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              Text(
-                                'Business',
-                                style: TextStyle(
-                                  fontFamily: "Barlow",
-                                  fontSize: 20,
-                                  color: Colors.white60,
-                                  fontWeight: FontWeight.w400,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      )
-                    ],
-                  )
-                ],
-              ),
-              decoration: BoxDecoration(
-                color: Colors.blue,
-                image: DecorationImage(
-                  fit: BoxFit.fill,
-                  image: AssetImage('assets/todo_home.jpg'),
-                ),
-              ),
-            ),
-            SizedBox(
-              height: 10.0,
-              child: new Center(
-                child: new Container(
-                  margin: new EdgeInsetsDirectional.only(start: 1.0, end: 1.0),
-                  height: 4.0,
-                  color: Colors.blue,
-                ),
-              ),
-            ),
-            Container(
-              margin: EdgeInsets.fromLTRB(20, 10, 10, 5),
+              margin: EdgeInsets.fromLTRB(20, 15, 10, 5),
               alignment: Alignment.centerLeft,
               child: Text(
                 "INBOX",
@@ -311,191 +373,193 @@ class _ToDoListHomePageState extends State<ToDoListHomePage> {
                 ),
               ),
             ),
-            Container(
-              margin: EdgeInsets.fromLTRB(5, 0, 5, 0),
-              height: MediaQuery.of(context).size.height * 0.58,
-              child: StreamBuilder(
-                stream: _toDos.snapshots(),
-                builder:
-                    (context, AsyncSnapshot<QuerySnapshot> streamSnapshot) {
-                  if (streamSnapshot.hasData) {
-                    return streamSnapshot.data!.docs.length > 0
-                        ? ListView.builder(
-                            itemCount: streamSnapshot.data!.docs.length,
-                            itemBuilder: (context, index) {
-                              final DocumentSnapshot documentSnapshot =
-                                  streamSnapshot.data!.docs[index];
-                              return Card(
-                                //elevation: 5,
-                                margin: const EdgeInsets.fromLTRB(5, 2, 5, 0),
-                                child: Container(
-                                  padding: EdgeInsets.fromLTRB(8, 0, 8, 0),
-                                  color: Colors.white,
-                                  height: 95,
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.start,
-                                    children: [
-                                      Container(
-                                        width: 60,
-                                        height: 60,
-                                        decoration: BoxDecoration(
-                                          border: Border.all(
-                                            width: 1,
-                                            color: Colors.grey.shade300,
+            SingleChildScrollView(
+              child: Container(
+                margin: EdgeInsets.fromLTRB(5, 0, 5, 0),
+                height: MediaQuery.of(context).size.height * 0.58,
+                child: StreamBuilder(
+                  stream: _toDos.snapshots(),
+                  builder:
+                      (context, AsyncSnapshot<QuerySnapshot> streamSnapshot) {
+                    if (streamSnapshot.hasData) {
+                      return streamSnapshot.data!.docs.length > 0
+                          ? ListView.builder(
+                              itemCount: streamSnapshot.data!.docs.length,
+                              itemBuilder: (context, index) {
+                                final DocumentSnapshot documentSnapshot =
+                                    streamSnapshot.data!.docs[index];
+                                return Card(
+                                  //elevation: 5,
+                                  margin: const EdgeInsets.fromLTRB(5, 2, 5, 0),
+                                  child: Container(
+                                    padding: EdgeInsets.fromLTRB(8, 0, 8, 0),
+                                    color: Colors.white,
+                                    height: 95,
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.start,
+                                      children: [
+                                        Container(
+                                          width: 60,
+                                          height: 60,
+                                          decoration: BoxDecoration(
+                                            border: Border.all(
+                                              width: 1,
+                                              color: Colors.grey.shade300,
+                                            ),
+                                            shape: BoxShape.circle,
                                           ),
-                                          shape: BoxShape.circle,
+                                          child: Icon(
+                                            Icons.wysiwyg_rounded,
+                                            size: 30,
+                                            color: Colors.blueAccent,
+                                          ),
                                         ),
-                                        child: Icon(
-                                          Icons.wysiwyg_rounded,
-                                          size: 30,
-                                          color: Colors.blueAccent,
+                                        SizedBox(
+                                          width: 10,
                                         ),
-                                      ),
-                                      SizedBox(
-                                        width: 10,
-                                      ),
-                                      Expanded(
-                                        child: Column(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.center,
-                                          children: [
-                                            Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment
-                                                      .spaceBetween,
-                                              children: [
-                                                Flexible(
-                                                  child: Container(
-                                                    width: 150,
-                                                    child: Text(
-                                                      documentSnapshot[
-                                                          Constants.TITLE],
-                                                      maxLines: 1,
-                                                      overflow:
-                                                          TextOverflow.ellipsis,
-                                                      style: TextStyle(
-                                                        fontFamily: "Barlow",
-                                                        fontSize: 26,
-                                                        color: Colors.black,
-                                                        fontWeight:
-                                                            FontWeight.w400,
+                                        Expanded(
+                                          child: Column(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            children: [
+                                              Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment
+                                                        .spaceBetween,
+                                                children: [
+                                                  Flexible(
+                                                    child: Container(
+                                                      width: 150,
+                                                      child: Text(
+                                                        documentSnapshot[
+                                                            Constants.TITLE],
+                                                        maxLines: 1,
+                                                        overflow:
+                                                            TextOverflow.ellipsis,
+                                                        style: TextStyle(
+                                                          fontFamily: "Barlow",
+                                                          fontSize: 26,
+                                                          color: Colors.black,
+                                                          fontWeight:
+                                                              FontWeight.w400,
+                                                        ),
                                                       ),
                                                     ),
                                                   ),
-                                                ),
-                                                Text(
-                                                  documentSnapshot[
-                                                          Constants.TIME]
-                                                      .toString()
-                                                      .split(" ")[1],
-                                                  style: TextStyle(
-                                                    fontFamily: "Barlow",
-                                                    fontSize: 16,
-                                                    color: Colors.grey.shade400,
-                                                    fontWeight: FontWeight.w300,
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                            SizedBox(
-                                              height: 5,
-                                            ),
-                                            Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment
-                                                      .spaceBetween,
-                                              children: [
-                                                Flexible(
-                                                  child: Container(
-                                                    width: 150,
-                                                    child: Text(
-                                                      documentSnapshot[Constants
-                                                          .DESCRIPTION],
-                                                      maxLines: 1,
-                                                      overflow:
-                                                          TextOverflow.ellipsis,
-                                                      style: TextStyle(
-                                                        fontFamily: "Barlow",
-                                                        fontSize: 18,
-                                                        color: Colors.grey,
-                                                        fontWeight:
-                                                            FontWeight.w400,
-                                                      ),
+                                                  Text(
+                                                    documentSnapshot[
+                                                            Constants.TIME]
+                                                        .toString()
+                                                        .split(" ")[1],
+                                                    style: TextStyle(
+                                                      fontFamily: "Barlow",
+                                                      fontSize: 16,
+                                                      color: Colors.grey.shade400,
+                                                      fontWeight: FontWeight.w300,
                                                     ),
                                                   ),
-                                                ),
-                                                Row(
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment.end,
-                                                  children: [
-                                                    GestureDetector(
-                                                      child: Icon(
-                                                        Icons.edit,
-                                                        color:
-                                                            Color(0xff246EB7),
+                                                ],
+                                              ),
+                                              SizedBox(
+                                                height: 5,
+                                              ),
+                                              Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment
+                                                        .spaceBetween,
+                                                children: [
+                                                  Flexible(
+                                                    child: Container(
+                                                      width: 150,
+                                                      child: Text(
+                                                        documentSnapshot[Constants
+                                                            .DESCRIPTION],
+                                                        maxLines: 1,
+                                                        overflow:
+                                                            TextOverflow.ellipsis,
+                                                        style: TextStyle(
+                                                          fontFamily: "Barlow",
+                                                          fontSize: 18,
+                                                          color: Colors.grey,
+                                                          fontWeight:
+                                                              FontWeight.w400,
+                                                        ),
                                                       ),
-                                                      onTap: () {
-                                                        //to novatigate for edit purpose
-                                                        Navigator.push(
-                                                          context,
-                                                          MaterialPageRoute(
-                                                            builder: (context) =>
-                                                                MakeToDo(
-                                                                    _createOrUpdate,
-                                                                    true,
-                                                                    documentSnapshot),
-                                                          ),
-                                                        );
-                                                      },
                                                     ),
-                                                    SizedBox(
-                                                      width: 20,
-                                                    ),
-                                                    // This icon button is used to delete a single product
-                                                    GestureDetector(
-                                                      child: Icon(
-                                                        Icons.delete,
-                                                        color:
-                                                            Color(0xffD37B6F),
+                                                  ),
+                                                  Row(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment.end,
+                                                    children: [
+                                                      GestureDetector(
+                                                        child: Icon(
+                                                          Icons.edit,
+                                                          color:
+                                                              Color(0xff246EB7),
+                                                        ),
+                                                        onTap: () {
+                                                          //to novatigate for edit purpose
+                                                          Navigator.push(
+                                                            context,
+                                                            MaterialPageRoute(
+                                                              builder: (context) =>
+                                                                  MakeToDo(
+                                                                      _createOrUpdate,
+                                                                      true,
+                                                                      documentSnapshot),
+                                                            ),
+                                                          );
+                                                        },
                                                       ),
-                                                      onTap: () {
-                                                        String category =
-                                                            documentSnapshot[
-                                                                Constants
-                                                                    .CATEGORY];
-                                                        _deleteProduct(
-                                                            documentSnapshot.id,
-                                                            category);
-                                                      },
-                                                    )
-                                                  ],
-                                                ),
-                                              ],
-                                            ),
-                                          ],
-                                        ),
-                                      )
-                                    ],
+                                                      SizedBox(
+                                                        width: 20,
+                                                      ),
+                                                      // This icon button is used to delete a single product
+                                                      GestureDetector(
+                                                        child: Icon(
+                                                          Icons.delete,
+                                                          color:
+                                                              Color(0xffD37B6F),
+                                                        ),
+                                                        onTap: () {
+                                                          String category =
+                                                              documentSnapshot[
+                                                                  Constants
+                                                                      .CATEGORY];
+                                                          _deleteProduct(
+                                                              documentSnapshot.id,
+                                                              category);
+                                                        },
+                                                      )
+                                                    ],
+                                                  ),
+                                                ],
+                                              ),
+                                            ],
+                                          ),
+                                        )
+                                      ],
+                                    ),
                                   ),
+                                );
+                              },
+                            )
+                          : Center(
+                              child: Text(
+                                "Add New ToDos...!",
+                                style: TextStyle(
+                                  fontSize: 26,
+                                  color: Colors.black,
+                                  fontWeight: FontWeight.normal,
                                 ),
-                              );
-                            },
-                          )
-                        : Center(
-                            child: Text(
-                              "Add New ToDos...!",
-                              style: TextStyle(
-                                fontSize: 26,
-                                color: Colors.black,
-                                fontWeight: FontWeight.normal,
                               ),
-                            ),
-                          );
-                  }
-                  return const Center(
-                    child: Text("No Data Found"),
-                  );
-                },
+                            );
+                    }
+                    return const Center(
+                      child: Text("No Data Found"),
+                    );
+                  },
+                ),
               ),
             ),
           ],
